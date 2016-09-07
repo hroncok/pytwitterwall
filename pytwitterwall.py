@@ -75,14 +75,30 @@ class TwitterWall:
         }
         return '{text}\nby @{username} at {at}\n'.format(**fmt)
 
-    def infinite_formater(self, query, initial_count, interval):
+    @classmethod
+    def is_retweet(cls, tweet):
+        """Check if the tweet is a retweet"""
+        return tweet['retweeted'] or tweet['text'].startswith('RT ')
+
+    @classmethod
+    def is_reply(cls, tweet):
+        """Check if the tweet is a reply"""
+        return (bool(tweet['in_reply_to_user_id']) or
+                tweet['text'].startswith('@'))
+
+    def infinite_formater(self, query, initial_count,
+                          interval, retweets, replies):
         """Return infinite stream of formated tweets"""
         for tweet in self.infinite_generator(query, initial_count, interval):
-            yield self.format_tweet(tweet)
+            if ((retweets or not self.is_retweet(tweet)) and
+                    (replies or not self.is_reply(tweet))):
+                yield self.format_tweet(tweet)
 
-    def infinite_printer(self, query, initial_count, interval):
+    def infinite_printer(self, query, initial_count,
+                         interval, retweets, replies):
         """Print tweets as they come in"""
-        for tweet in self.infinite_formater(query, initial_count, interval):
+        for tweet in self.infinite_formater(query, initial_count,
+                                            interval, retweets, replies):
             print(tweet)
 
 
@@ -102,11 +118,15 @@ def credentials(path):
               help='Number of seconds to wait between polls.')
 @click.option('--config', default='./auth.cfg',
               help='Path for the auth config file')
-def twitterwall(query, initial_count, interval, config):
+@click.option('--retweets/--no-retweets', default=False,
+              help='Whether to show retweets, defaults is no.')
+@click.option('--replies/--no-replies', default=True,
+              help='Whether to show replies, defaults is yes.')
+def twitterwall(query, initial_count, interval, config, retweets, replies):
     """Command line twitter wall"""
     try:
         tw = TwitterWall(*credentials(config))
-        tw.infinite_printer(query, initial_count, interval)
+        tw.infinite_printer(query, initial_count, interval, retweets, replies)
     except BaseException as e:
         print(e, file=sys.stderr)
 
