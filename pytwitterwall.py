@@ -3,6 +3,7 @@ import configparser
 import time
 import sys
 
+import click
 import requests
 
 
@@ -92,14 +93,23 @@ def credentials(path):
     return config['twitter']['key'], config['twitter']['secret']
 
 
-def twitterwall(query, initial_count=15, interval=20, config='auth.cfg'):
-    """The main function"""
-    tw = TwitterWall(*credentials(config))
-    tw.infinite_printer(query, initial_count, interval)
+@click.command()
+@click.option('--query', default='#python',
+              help='The query to search for.')
+@click.option('--initial-count', default=15,
+              help='Number of tweets to get when starting.')
+@click.option('--interval', default=10,
+              help='Number of seconds to wait between polls.')
+@click.option('--config', default='./auth.cfg',
+              help='Path for the auth config file')
+def twitterwall(query, initial_count, interval, config):
+    """Command line twitter wall"""
+    try:
+        tw = TwitterWall(*credentials(config))
+        tw.infinite_printer(query, initial_count, interval)
+    except BaseException as e:
+        print(e, file=sys.stderr)
 
 
 if __name__ == '__main__':
-    try:
-        twitterwall('#appleevent')
-    except BaseException as e:
-        print(e, file=sys.stderr)
+    twitterwall()
