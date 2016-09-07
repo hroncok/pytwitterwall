@@ -1,0 +1,4 @@
+[twitter]
+key = put_your_api_key_here
+secret = put_your_api_secret_here
+# save as auth.cfg

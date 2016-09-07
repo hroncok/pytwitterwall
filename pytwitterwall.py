@@ -1,5 +1,7 @@
 import base64
+import configparser
 import time
+import sys
 
 import requests
 
@@ -77,7 +79,27 @@ class TwitterWall:
         for tweet in self.infinite_generator(query, initial_count, interval):
             yield self.format_tweet(tweet)
 
-    def infinite_printer(self, query, initial_count=15, interval=20):
+    def infinite_printer(self, query, initial_count, interval):
         """Print tweets as they come in"""
         for tweet in self.infinite_formater(query, initial_count, interval):
             print(tweet)
+
+
+def credentials(path):
+    """Read credentials from a given config file"""
+    config = configparser.ConfigParser()
+    config.read(path)
+    return config['twitter']['key'], config['twitter']['secret']
+
+
+def twitterwall(query, initial_count=15, interval=20, config='auth.cfg'):
+    """The main function"""
+    tw = TwitterWall(*credentials(config))
+    tw.infinite_printer(query, initial_count, interval)
+
+
+if __name__ == '__main__':
+    try:
+        twitterwall('#appleevent')
+    except BaseException as e:
+        print(e, file=sys.stderr)
