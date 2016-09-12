@@ -1,5 +1,9 @@
 <!doctype html>
 <title>{{ hashtag }}</title>
 {% for tweet in tweets %}
-  <p>{{ tweet.text }}</p>
+    <p>
+        <img alt="" src="{{ tweet.user.profile_image_url }}" align="left" />
+        {{ tweet.user.name }} <strong>@{{ tweet.user.screen_name }}</strong> {{ tweet.created_at|time }}<br />
+        {{ tweet|enrich }}
+    </p>
 {% endfor %}
