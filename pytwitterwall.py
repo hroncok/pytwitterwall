@@ -44,12 +44,12 @@ class TwitterWall:
         r.raise_for_status()
         return r.json()['statuses']
 
-    def initial_tweets(self, query, count):
-        """Performs an initial search, returns the tweets ASC"""
+    def tweets(self, query, count):
+        """Performs an initial search, returns the tweets DESC"""
         statuses = self.search(q=query, count=count, result_type='recent')
         self.last_seen = statuses[0]['id']
         self.query = query
-        return reversed(statuses)
+        return statuses
 
     def more_tweets(self):
         """Gets new tweets since last time"""
@@ -61,7 +61,7 @@ class TwitterWall:
 
     def infinite_generator(self, query, initial_count, interval):
         """Do an infinite loop and yield the tweets"""
-        yield from self.initial_tweets(query, initial_count)
+        yield from reversed(self.tweets(query, initial_count))
         while True:
             yield from self.more_tweets()
             time.sleep(interval)
@@ -118,7 +118,7 @@ app = Flask(__name__)
 def wall(hashtag='python'):
     tw = TwitterWall(app.config['API_KEY'], app.config['API_SECRET'])
     query = '#' + hashtag
-    tweets = tw.initial_tweets(query, 25)
+    tweets = tw.tweets(query, 25)
     return render_template('wall.html', tweets=tweets, hashtag=query)
 
 
