@@ -5,7 +5,7 @@ import sys
 
 import click
 import requests
-from flask import Flask
+from flask import Flask, render_template
 
 
 class TwitterWall:
@@ -114,8 +114,12 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello():
-    return 'MI-PYT rulez!'
+@app.route('/<hashtag>/')
+def wall(hashtag='python'):
+    tw = TwitterWall(app.config['API_KEY'], app.config['API_SECRET'])
+    query = '#' + hashtag
+    tweets = tw.initial_tweets(query, 25)
+    return render_template('wall.html', tweets=tweets, hashtag=query)
 
 
 @click.group()
@@ -126,8 +130,11 @@ def cli():
 @cli.command()
 @click.option('--debug/--no-debug', default=False,
               help='Whether to run in debug mode, defaults is not to.')
-def web(debug):
+@click.option('--config', default='./auth.cfg',
+              help='Path for the auth config file')
+def web(debug, config):
     """Run the web twitter wall"""
+    app.config['API_KEY'], app.config['API_SECRET'] = credentials(config)
     if debug:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(debug=debug)
