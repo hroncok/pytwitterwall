@@ -5,6 +5,7 @@ import sys
 
 import click
 import requests
+from flask import Flask
 
 
 class TwitterWall:
@@ -109,7 +110,30 @@ def credentials(path):
     return config['twitter']['key'], config['twitter']['secret']
 
 
-@click.command()
+app = Flask(__name__)
+
+
+@app.route('/')
+def hello():
+    return 'MI-PYT rulez!'
+
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.option('--debug/--no-debug', default=False,
+              help='Whether to run in debug mode, defaults is not to.')
+def web(debug):
+    """Run the web twitter wall"""
+    if debug:
+        app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.run(debug=debug)
+
+
+@cli.command()
 @click.option('--query', default='#python',
               help='The query to search for.')
 @click.option('--initial-count', default=15,
@@ -122,8 +146,8 @@ def credentials(path):
               help='Whether to show retweets, defaults is no.')
 @click.option('--replies/--no-replies', default=True,
               help='Whether to show replies, defaults is yes.')
-def twitterwall(query, initial_count, interval, config, retweets, replies):
-    """Command line twitter wall"""
+def console(query, initial_count, interval, config, retweets, replies):
+    """Run the command line twitter wall"""
     try:
         tw = TwitterWall(*credentials(config))
         tw.infinite_printer(query, initial_count, interval, retweets, replies)
@@ -132,4 +156,4 @@ def twitterwall(query, initial_count, interval, config, retweets, replies):
 
 
 if __name__ == '__main__':
-    twitterwall()
+    cli()
