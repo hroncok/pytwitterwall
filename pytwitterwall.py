@@ -168,7 +168,7 @@ def htmlzie(entities, text):
                     append = '<br /><img src="{}:thumb" />'.format(
                         entity['media_url_https'])
             else:
-                assert 'Not gonna happen'
+                raise RuntimeError('Unknown entity')
             entity['html'] = html
             starts[s] = entity
     return combine(text, starts, append)
