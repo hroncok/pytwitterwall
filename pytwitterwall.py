@@ -83,7 +83,7 @@ class TwitterWall:
     @classmethod
     def is_retweet(cls, tweet):
         """Check if the tweet is a retweet"""
-        return tweet['retweeted'] or tweet['text'].startswith('RT ')
+        return 'retweeted_status' in tweet or tweet['text'].startswith('RT ')
 
     @classmethod
     def is_reply(cls, tweet):
