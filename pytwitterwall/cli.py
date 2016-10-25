@@ -22,7 +22,8 @@ def cli():
 @click.option('--debug/--no-debug', default=False,
               help='Whether to run in debug mode, defaults is not to.')
 @click.option('--config', default='./auth.cfg',
-              help='Path for the auth config file')
+              help='Path for the auth config file',
+              type=click.Path(exists=True))
 def web(debug, config):
     """Run the web twitter wall"""
     from .web import app
@@ -40,7 +41,8 @@ def web(debug, config):
 @click.option('--interval', default=10,
               help='Number of seconds to wait between polls.')
 @click.option('--config', default='./auth.cfg',
-              help='Path for the auth config file')
+              help='Path for the auth config file',
+              type=click.Path(exists=True))
 @click.option('--retweets/--no-retweets', default=False,
               help='Whether to show retweets, defaults is no.')
 @click.option('--replies/--no-replies', default=True,
