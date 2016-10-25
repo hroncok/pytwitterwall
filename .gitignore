@@ -1,3 +1,6 @@
 __pycache__
 auth.cfg
-env
+/env
+/build
+/dist
+*.egg-info
